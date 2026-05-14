@@ -1,3 +1,11 @@
+# Criar o Reposi
+# criar Projeto react vite template react.ts
+# Instalar dependencias e config 
+ - Taileindcss e types
+ -Axios
+ -react-router-dom
+ # Criar pastas de organização
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
