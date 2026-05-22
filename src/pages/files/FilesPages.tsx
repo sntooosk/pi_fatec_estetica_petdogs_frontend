@@ -1,3 +1,3 @@
-export function FilesPages(){
-    return <h1 ClassName='text=3xl font-bold'> </h1>
+export function FilesPages() {
+  return <h1 className="text-3xl font-bold">Arquivos</h1>
 }
