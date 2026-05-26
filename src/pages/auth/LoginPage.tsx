@@ -25,8 +25,8 @@ export function LoginPage({ mode = "login" }: LoginPageProps) {
   }
 
   const descriptionByMode = {
-    login: "Acesse sua conta para continuar no painel da Estética PetDogs.",
-    register: "Crie seu cadastro para agendar e acompanhar os cuidados do seu pet.",
+    login: "Entre para acessar sua agenda e seus dados.",
+    register: "Cadastre-se para agendar os cuidados do seu pet.",
   }
 
   const submitLabelByMode = {
@@ -74,7 +74,7 @@ export function LoginPage({ mode = "login" }: LoginPageProps) {
         }
       />
       <main className="px-6 py-10">
-        <div className="mx-auto grid min-h-[calc(100vh-7rem)] w-full max-w-6xl overflow-hidden rounded-[2rem] border border-blue-100 bg-white shadow-[0_30px_80px_-50px_rgba(37,99,235,0.45)] lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="mx-auto grid min-h-[calc(100vh-7rem)] w-full max-w-6xl overflow-hidden rounded-[2rem] border border-blue-100 bg-white shadow-[0_30px_80px_-50px_rgba(37,99,235,0.45)] lg:grid-cols-[0.8fr_1.2fr]">
         <aside className="flex flex-col justify-between bg-gradient-to-br from-blue-700 via-blue-600 to-sky-500 p-8 text-white sm:p-10">
           <div>
             <div className="mt-10 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.24em]">Estética PetDogs</div>
@@ -84,9 +84,9 @@ export function LoginPage({ mode = "login" }: LoginPageProps) {
 
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
             {[
-              { title: "Acesso rápido", text: "Entrar, recuperar ou redefinir sem trocar de tela." },
-              { title: "Identidade única", text: "Mesma paleta da landing e da dashboard." },
-              { title: "Fluxo guiado", text: "Texto curto para reduzir erro de uso." },
+              { title: "Rápido", text: "Acesso em poucos passos." },
+              { title: "Seguro", text: "Dados protegidos e privados." },
+              { title: "Simples", text: "Tela direta e objetiva." },
             ].map((item) => (
               <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3" key={item.title}>
                 <p className="text-sm font-black">{item.title}</p>
