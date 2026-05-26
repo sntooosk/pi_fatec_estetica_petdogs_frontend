@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { PageContainer, SectionPad, SiteHeader, SiteShell } from "../../components/layout/UnifiedPageFrame"
 import { SectionTitle } from "../../components/ui/SectionTitle"
-import { BenefitCard, FaqItem, ReviewCard, ServiceCard } from "../../components/landing/LandingComponents"
+import { BenefitCard, ServiceCard } from "../../components/landing/LandingComponents"
 
 const whatsappNumber = "5511998112494"
 const whatsappMessage = encodeURIComponent("Olá! Quero agendar banho e tosa na PetDog's Estetica Animal em Atibaia/SP.")
@@ -50,80 +50,10 @@ const benefits = [
 ]
 
 // Services are loaded from the backend; static list removed.
-
-const reasons = [
-  {
-    title: "Experiencia que transmite confiança",
-    text: "A PetDog's entrega um atendimento organizado, com foco em segurança e consistencia na rotina do pet.",
-  },
-  {
-    title: "Cuidado individual",
-    text: "Cada animal passa por uma experiencia pensada no seu comportamento, conforto e necessidade real.",
-  },
-  {
-    title: "Conforto durante o atendimento",
-    text: "O ambiente e o processo foram pensados para deixar a visita mais tranquila para o tutor e para o pet.",
-  },
-  {
-    title: "Qualidade visivel no resultado",
-    text: "O acabamento final reforca a sensacao de capricho, limpeza e profissionalismo em cada detalhe.",
-  },
-]
-
-const reviews = [
-  {
-    name: "Juliana M.",
-    profile: "Cliente de Atibaia/SP",
-    text: "Atendimento muito cuidadoso. Meu cachorro saiu cheiroso, calmo e com o pelo impecavel.",
-  },
-  {
-    name: "Ricardo S.",
-    profile: "Tutor de dois pets",
-    text: "Gostei da organizacao e da facilidade de agendar. Passa muita confiança no primeiro contato.",
-  },
-  {
-    name: "Camila R.",
-    profile: "Cliente recorrente",
-    text: "A equipe foi atenciosa com a minha gata e explicou tudo com bastante paciencia.",
-  },
-  {
-    name: "Fernanda P.",
-    profile: "Moradora de Atibaia/SP",
-    text: "Visual premium, atendimento profissional e um carinho que faz diferenca para quem ama o pet.",
-  },
-]
-
-const gallery = [
-  {
-    src: "https://images.pexels.com/photos/4587991/pexels-photo-4587991.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    alt: "Cachorro recebendo cuidado no banho",
-    label: "Antes",
-  },
-  {
-    src: "https://images.pexels.com/photos/4587959/pexels-photo-4587959.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    alt: "Pet com pelagem limpa e alinhada",
-    label: "Depois",
-  },
-  {
-    src: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    alt: "Cachorro feliz apos cuidados estéticos",
-    label: "Depois",
-  },
-  {
-    src: "https://images.pexels.com/photos/1805164/pexels-photo-1805164.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    alt: "Filhote de cachorro olhando para a camera",
-    label: "Antes",
-  },
-  {
-    src: "https://images.pexels.com/photos/6235230/pexels-photo-6235230.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    alt: "Pet relaxado apos atendimento",
-    label: "Depois",
-  },
-  {
-    src: "https://images.pexels.com/photos/6235233/pexels-photo-6235233.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    alt: "Gato tranquilo em ambiente acolhedor",
-    label: "Antes",
-  },
+const services = [
+  { title: "Banho", text: "Limpeza, hidratação e secagem com cuidado.", highlight: "Mais pedido" },
+  { title: "Tosa", text: "Tosa higiênica e estética para cada raça.", highlight: "Profissional" },
+  { title: "Pacote completo", text: "Banho + tosa no mesmo atendimento.", highlight: "Praticidade" },
 ]
 
 const faqs = [
@@ -211,7 +141,6 @@ export function LandingPage() {
             <nav className="hidden items-center gap-6 text-sm font-semibold text-slate-600 md:flex">
               <a className="transition hover:text-blue-700" href="#beneficios">Beneficios</a>
               <a className="transition hover:text-blue-700" href="#servicos">Servicos</a>
-              <a className="transition hover:text-blue-700" href="#avaliacoes">Avaliacoes</a>
               <a className="transition hover:text-blue-700" href="#faq">FAQ</a>
               <a className="transition hover:text-blue-700" href="#localizacao">Localizacao</a>
               <Link className="rounded-2xl border border-blue-100 bg-white px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-50" to="/app/dashboard">Agendar pelo site</Link>
@@ -240,9 +169,7 @@ export function LandingPage() {
               <h1 className="max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
                 Banho e Tosa com Cuidado Profissional em Atibaia
               </h1>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                Cuidados profissionais para seu pet. Agende com rapidez e segurança.
-              </p>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">Seu pet limpo, cheiroso e confortável com agendamento rápido.</p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -339,71 +266,7 @@ export function LandingPage() {
         </PageContainer>
       </section>
 
-      <SectionPad>
-        <PageContainer className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-[2rem] border border-blue-100 bg-blue-50 p-8 shadow-sm">
-          <SectionTitle eyebrow="Por que escolher a PetDog's?" title="Uma proposta pensada para gerar confiança" description="Proposta focada em cuidado, segurança e credibilidade." />
-          <div className="mt-8 grid gap-4">
-            {reasons.map((item) => (
-              <div key={item.title} className="rounded-[1.4rem] border border-blue-100 bg-white p-5 shadow-sm">
-                <h3 className="font-black text-slate-950">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{item.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid gap-4">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-            <img
-              className="h-72 w-full object-cover transition duration-500 hover:scale-105"
-              src="https://images.pexels.com/photos/6235233/pexels-photo-6235233.jpeg?auto=compress&cs=tinysrgb&w=1200"
-              alt="Animal de estimação em ambiente confortável"
-              loading="lazy"
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              "Cuidado individual em cada atendimento",
-              "Conforto para caes e gatos",
-              "Rotina organizada para o tutor",
-              "Acabamento com qualidade visivel",
-            ].map((item) => (
-              <div key={item} className="rounded-[1.4rem] border border-slate-200 bg-white p-5 font-semibold text-slate-700 shadow-sm">
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-        </PageContainer>
-      </SectionPad>
-
-      <SectionPad id="avaliacoes" className="bg-white">
-        <PageContainer>
-          <SectionTitle eyebrow="Avaliacoes" title="O que clientes costumam sentir apos o atendimento" description="Depoimentos em estilo de review reforcam o valor percebido e ajudam na decisao de contato." />
-          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {reviews.map((review) => (
-              <ReviewCard key={review.name} name={review.name} profile={review.profile} text={review.text} />
-            ))}
-          </div>
-        </PageContainer>
-      </SectionPad>
-
-      <SectionPad>
-        <PageContainer>
-        <SectionTitle eyebrow="Galeria" title="Antes e depois com destaque visual" description="O hover suave valoriza as imagens sem pesar a experiencia no celular." />
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {gallery.map((item) => (
-            <figure key={item.src} className="group relative overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-sm">
-              <img className="h-72 w-full object-cover transition duration-500 group-hover:scale-110" src={item.src} alt={item.alt} loading="lazy" />
-              <figcaption className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-black uppercase tracking-[0.22em] text-blue-700 shadow-sm">
-                {item.label}
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-        </PageContainer>
-      </SectionPad>
+      
 
       <SectionPad id="localizacao" className="bg-white">
         <PageContainer className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
@@ -442,7 +305,13 @@ export function LandingPage() {
         <SectionTitle eyebrow="FAQ" title="Perguntas frequentes sobre banho e tosa em Atibaia" description="Conteudo estruturado para ajudar o visitante e fortalecer a busca local." />
         <div className="mt-8 grid gap-4">
           {faqs.map((item) => (
-            <FaqItem key={item.question} question={item.question} answer={item.answer} />
+            <details key={item.question} className="group rounded-[1.4rem] border border-slate-200 bg-white p-5 shadow-sm transition open:shadow-[0_18px_45px_-28px_rgba(37,99,235,0.2)]">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left font-black text-slate-950">
+                <span>{item.question}</span>
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blue-50 text-blue-700 transition group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-4 text-sm leading-6 text-slate-600">{item.answer}</p>
+            </details>
           ))}
         </div>
         </PageContainer>

@@ -229,24 +229,24 @@ const weekdayOptions = [
 function getDashboardMode(role?: Role) {
   if (role === "cliente") {
     return {
-      label: "Client Dashboard",
+      label: "Cliente",
       title: "Área do cliente",
-      description: "Portal do cliente para agendar, acompanhar e atualizar seus dados com clareza.",
+      description: "Agende serviços, acompanhe horários e atualize seus dados.",
     }
   }
 
   if (role === "profissional") {
     return {
-      label: "Professional Dashboard",
-      title: "Painel operacional",
-      description: "Backoffice do profissional para organizar agenda, equipe e atendimento do dia.",
+      label: "Profissional",
+      title: "Painel profissional",
+      description: "Organize agenda e acompanhe os atendimentos do dia.",
     }
   }
 
   return {
-    label: "Admin Dashboard",
-    title: "Painel administrativo completo",
-    description: "Ambiente administrativo para controlar clientes, pets, serviços, profissionais e agenda.",
+    label: "Admin",
+    title: "Painel administrativo",
+    description: "Gerencie clientes, pets, serviços, profissionais e agenda.",
   }
 }
 
@@ -620,9 +620,9 @@ export function Dashboard() {
       />
 
       <main>
-      <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6">
+      <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-5">
         <div className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/85 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.25)] backdrop-blur-xl">
-          <div className="border-b border-slate-200/70 bg-white/90 px-4 py-6 sm:px-6 lg:px-8">
+          <div className="border-b border-slate-200/70 bg-white/90 px-4 py-5 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-start gap-4">
                 <div className="grid h-14 w-14 shrink-0 place-items-center rounded-[1.4rem] bg-gradient-to-br from-blue-600 via-sky-500 to-orange-400 text-white shadow-lg shadow-blue-200/60">
