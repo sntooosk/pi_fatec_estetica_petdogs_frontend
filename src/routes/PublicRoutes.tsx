@@ -8,8 +8,6 @@ export function PublicRoutes() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<LoginPage mode="register" />} />
-      <Route path="/forgot-password" element={<LoginPage mode="forgot" />} />
-      <Route path="/reset-password" element={<LoginPage mode="reset" />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

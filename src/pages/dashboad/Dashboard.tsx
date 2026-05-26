@@ -5,6 +5,7 @@ import api from "../../services/api"
 import { Avatar } from "../../components/ui/Avatar"
 import { AvailabilityCalendar } from "../../components/calendar/AvailabilityCalendar"
 import { Modal } from "../../components/ui/Modal"
+import { SiteHeader, SiteShell } from "../../components/layout/UnifiedPageFrame"
 
 type Role = "admin" | "profissional" | "cliente"
 
@@ -599,22 +600,42 @@ export function Dashboard() {
   }
 
   return (
+    <SiteShell>
+      <SiteHeader
+        rightAction={
+          <>
+            <div className="hidden items-center gap-3 rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex">
+              <Avatar src={user?.foto} alt={user?.name ?? "Usuário"} fallbackLabel={user?.name ?? "U"} />
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{dashboardMode.label}</p>
+                <p className="mt-1 truncate text-sm font-black text-slate-950">{user?.name ?? "Carregando"}</p>
+                <p className="text-xs font-semibold text-slate-500">{user?.role ?? "..."}</p>
+              </div>
+            </div>
+            <button className="rounded-2xl bg-orange-500 px-4 py-3 font-black text-white shadow-lg shadow-orange-200 transition hover:bg-orange-600" onClick={logout}>
+              Sair
+            </button>
+          </>
+        }
+      />
+
+      <main>
       <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6">
-        <div className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/75 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-          <div className="border-b border-slate-200/70 bg-white/90 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/85 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.25)] backdrop-blur-xl">
+          <div className="border-b border-slate-200/70 bg-white/90 px-4 py-6 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-start gap-4">
-                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-[1.4rem] bg-gradient-to-br from-blue-600 via-sky-500 to-blue-200 text-white shadow-lg shadow-blue-200/60">
+                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-[1.4rem] bg-gradient-to-br from-blue-600 via-sky-500 to-orange-400 text-white shadow-lg shadow-blue-200/60">
                   <Icon name="cut" className="h-7 w-7" />
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.28em] text-blue-600">PetCare Banho &amp; Tosa</p>
+                  <p className="text-xs font-black uppercase tracking-[0.28em] text-blue-600">Estética PetDogs</p>
                   <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">{dashboardMode.title}</h1>
                   <p className="mt-1 max-w-2xl text-sm text-slate-600 sm:text-base">{dashboardMode.description}</p>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center xl:hidden">
                 <div className="flex items-center gap-3 rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 shadow-sm">
                   <Avatar src={user?.foto} alt={user?.name ?? "Usuário"} fallbackLabel={user?.name ?? "U"} />
                   <div>
@@ -623,9 +644,6 @@ export function Dashboard() {
                     <p className="text-xs font-semibold text-slate-500">{user?.role ?? "..."}</p>
                   </div>
                 </div>
-                <button className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 font-bold text-blue-700 transition hover:bg-blue-100" onClick={logout}>
-                  Sair do painel
-                </button>
               </div>
             </div>
           </div>
@@ -1040,5 +1058,7 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+      </main>
+    </SiteShell>
   )
 }
