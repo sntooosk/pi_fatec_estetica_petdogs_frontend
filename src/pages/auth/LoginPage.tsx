@@ -3,6 +3,7 @@ import type { FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import api from "../../services/api"
 import { SiteHeader, SiteShell } from "../../components/layout/UnifiedPageFrame"
+import { useAuth } from '../../hooks/useAuth';
 
 type Mode = "login" | "register"
 
@@ -18,6 +19,7 @@ export function LoginPage({ mode = "login" }: LoginPageProps) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
+  const { signIn } = useAuth();
 
   const titleByMode = {
     login: "Entrar na conta",
@@ -48,8 +50,7 @@ export function LoginPage({ mode = "login" }: LoginPageProps) {
         return
       }
 
-      const { data } = await api.post("/auth/login", { email, password })
-      localStorage.setItem("petshop-token", data.token)
+      await signIn({ email, password });
       navigate("/app/dashboard")
     } catch (requestError) {
       const fallback = "Não foi possível concluir a operação"
