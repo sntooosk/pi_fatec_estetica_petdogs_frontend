@@ -196,7 +196,7 @@ function getDashboardMode(role?: Role) {
   }
 }
 
-export function Dashboard() {
+export function DashboardPage() {
   const navigate = useNavigate()
   const [user, setUser] = useState<AuthUser | null>(null)
   const [activeTab, setActiveTab] = useState<TabKey>("agenda")

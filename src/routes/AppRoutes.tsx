@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { PrivateRoutes } from "./PrivateRoutes"
 import { PublicRoutes } from "./PublicRoutes"
-import { UnauthorizedPage } from "../pages/UnauAthorize"
+import { UnauthorizedPage } from "../pages/UnauthorizedPage"
 
 export function AppRoutes() {
   return (
