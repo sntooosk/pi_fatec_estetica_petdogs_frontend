@@ -1,55 +1,36 @@
-import { useState } from "react";
-import type {  ReactNode } from "react";
-import { LoginRequest, type LoginData, type LoginResponse } from "../services/authService";
-import { AuthContext } from "./AuthContextObject";
+import { useState } from "react"
+import type { ReactNode } from "react"
+import type { AuthSession, LoginCredentials } from "../domain/entities"
+import { authController } from "../interface-adapters/controllers/authController"
+import { AuthContext } from "./AuthContextObject"
+
 interface AuthProviderProps {
-    children: ReactNode;
-}
-function getStoredUser():LoginResponse["user"] | null {
-  const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      return null;
-    }
-    return JSON.parse(storedUser);
+  children: ReactNode
 }
 
-function getStoredToken(): string | null {
-    return localStorage.getItem("token");
-}
+const storedSession = authController.getStoredSession()
 
 export function AuthProvider({ children }: AuthProviderProps) {
-    const[user, setUser] = useState<LoginResponse["user"] | null>(getStoredUser());
-    const[token, setToken] = useState<string | null>(getStoredToken());
+  const [user, setUser] = useState<AuthSession["user"] | null>(storedSession?.user ?? null)
+  const [token, setToken] = useState<string | null>(storedSession?.token ?? null)
 
-    const isAuthenticated = !!user && !!token;
+  const isAuthenticated = Boolean(user && token)
 
-    async function signIn(data: LoginData): Promise<void> {
-        console.log("Dados de login CONTEXTO:", data);
-        const response = await LoginRequest(data);
-        localStorage.setItem("petshop-token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
-        console.log("Resposta do login:", response);
-        setUser(response.user);
-        setToken(response.token);
-     }
-     function signOut(): void {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+  async function signIn(data: LoginCredentials): Promise<void> {
+    const response = await authController.signIn(data)
+    setUser(response.user)
+    setToken(response.token)
+  }
 
-        setUser(null);
-        setToken(null);
-      }
-     
-      
-    return (
-        <AuthContext.Provider 
-        value={{ user, 
-        token,
-         isAuthenticated,
-          signIn, 
-          signOut 
-          }}>
-            {children}
-        </AuthContext.Provider>
-    )
-}         
+  function signOut(): void {
+    authController.signOut()
+    setUser(null)
+    setToken(null)
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, token, isAuthenticated, signIn, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}

@@ -1,12 +1,12 @@
-import { createContext } from "react";
-import type { LoginData, LoginResponse } from "../services/authService";
+import { createContext } from "react"
+import type { AuthSession, LoginCredentials } from "../domain/entities"
 
 interface AuthContextData {
-    user: LoginResponse["user"] | null;
-    token: string | null;
-    isAuthenticated: boolean;
-    signIn: (data: LoginData) => Promise<void>;
-    signOut: () => void;
+  user: AuthSession["user"] | null
+  token: string | null
+  isAuthenticated: boolean
+  signIn: (data: LoginCredentials) => Promise<void>
+  signOut: () => void
 }
 
-export const AuthContext = createContext ({} as AuthContextData);
+export const AuthContext = createContext({} as AuthContextData)

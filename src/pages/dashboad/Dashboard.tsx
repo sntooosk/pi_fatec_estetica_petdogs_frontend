@@ -1,63 +1,19 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { ChangeEvent, FormEvent, ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
-import api from "../../services/api"
 import { Avatar } from "../../components/ui/Avatar"
 import { AvailabilityCalendar } from "../../components/calendar/AvailabilityCalendar"
 import { Modal } from "../../components/ui/Modal"
 import { SiteHeader, SiteShell } from "../../components/layout/UnifiedPageFrame"
+import type { AuthUser, Customer, Pet, Professional, Schedule, Service } from "../../domain/entities"
+import { dashboardController } from "../../interface-adapters/controllers/dashboardController"
+import { authController } from "../../interface-adapters/controllers/authController"
+import { isUnauthorizedError, presentRequestError } from "../../interface-adapters/presenters/errorPresenter"
+import { emptyProfileForm, presentProfileForm } from "../../interface-adapters/presenters/profilePresenter"
 
-type Role = "admin" | "profissional" | "cliente"
+type Role = AuthUser["role"]
 
 type TabKey = "agenda" | "servicos" | "profissionais" | "clientes" | "pets" | "perfil"
-
-interface UserSession {
-  id: string
-  name: string
-  email: string
-  foto?: string
-  role: Role
-}
-
-interface Customer {
-  _id: string
-  name: string
-  email: string
-  telefone?: string
-  foto?: string
-}
-
-interface Pet {
-  _id: string
-  nome: string
-  raca: string
-  idade: number
-  porte: string
-  foto?: string
-  cliente?: Customer
-}
-
-interface Service {
-  _id: string
-  name: string
-  descricao?: string
-  duracao_min: number
-  preco: number
-}
-
-interface Professional {
-  _id: string
-  name: string
-  email: string
-  telefone?: string
-  foto?: string
-  especialidade: string
-  dias_trabalho: number[]
-  horario_inicio: string
-  horario_fim: string
-  almoco_inicio?: string
-  almoco_fim?: string
-}
 
 interface ScheduleFormState {
   animal: string
@@ -72,16 +28,6 @@ interface ConfirmModalState {
   confirmLabel: string
   tone: "danger" | "warning"
   onConfirm: () => Promise<void>
-}
-
-interface Schedule {
-  _id: string
-  data_hora: string
-  status: "scheduled" | "canceled"
-  cliente?: Customer
-  animal?: Pet
-  servico?: Service
-  profissional?: Professional
 }
 
 const inputClass = "rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100"
@@ -252,7 +198,7 @@ function getDashboardMode(role?: Role) {
 
 export function Dashboard() {
   const navigate = useNavigate()
-  const [user, setUser] = useState<UserSession | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(null)
   const [activeTab, setActiveTab] = useState<TabKey>("agenda")
   const [pets, setPets] = useState<Pet[]>([])
   const [services, setServices] = useState<Service[]>([])
@@ -278,7 +224,7 @@ export function Dashboard() {
   const [clientForm, setClientForm] = useState(emptyClientForm())
   const [editingClientId, setEditingClientId] = useState<string | null>(null)
   const [clientEditModalOpen, setClientEditModalOpen] = useState(false)
-  const [profileForm, setProfileForm] = useState({ name: "", email: "", telefone: "", foto: "", especialidade: "", dias_trabalho: [1, 2, 3, 4, 5] as number[], horario_inicio: "08:00", horario_fim: "18:00", almoco_inicio: "12:00", almoco_fim: "13:00" })
+  const [profileForm, setProfileForm] = useState(emptyProfileForm())
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null)
 
   const isAdmin = user?.role === "admin"
@@ -294,66 +240,29 @@ export function Dashboard() {
     { key: "perfil", label: "Perfil", icon: "settings", show: isCustomer || isProfessional },
   ]
 
-  function clearSession() {
-    localStorage.removeItem("petshop-token")
+  const clearSession = useCallback(() => {
+    authController.signOut()
     setUser(null)
-  }
+  }, [])
 
-  function logout() {
+  const logout = useCallback(() => {
     clearSession()
     navigate("/login", { replace: true })
-  }
+  }, [clearSession, navigate])
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     try {
       setError("")
-      const meResponse = await api.get<{ user: UserSession }>("/auth/me")
-      const currentUser = meResponse.data.user
-      setUser(currentUser)
-
-      const professionalsRequest = api.get<Professional[]>("/profissionais")
-      const requests: Promise<unknown>[] = [
-        api.get<Service[]>("/servicos").then((response) => setServices(response.data)),
-        professionalsRequest.then((response) => setProfessionals(response.data)),
-        api.get<Schedule[]>("/agendamentos").then((response) => setSchedules(response.data)),
-      ]
-
-      if (currentUser.role === "cliente" || currentUser.role === "admin") {
-        requests.push(api.get<Pet[]>("/pets").then((response) => setPets(response.data)))
-      }
-
-      if (currentUser.role === "cliente") {
-        requests.push(api.get<Customer>("/clientes/me").then((response) => setProfileForm({ name: response.data.name ?? "", email: response.data.email ?? "", telefone: response.data.telefone ?? "", foto: response.data.foto ?? "", especialidade: "", dias_trabalho: [1, 2, 3, 4, 5], horario_inicio: "08:00", horario_fim: "18:00", almoco_inicio: "12:00", almoco_fim: "13:00" })))
-      }
-
-      if (currentUser.role === "admin") {
-        requests.push(api.get<Customer[]>("/clientes").then((response) => setCustomers(response.data)))
-      }
-
-      if (currentUser.role === "profissional") {
-        requests.push(professionalsRequest.then((response) => {
-          const professional = response.data.find((item) => item._id === currentUser.id)
-          if (!professional) return
-
-          setProfileForm({
-            name: professional.name ?? "",
-            email: professional.email ?? "",
-            telefone: professional.telefone ?? "",
-            foto: professional.foto ?? "",
-            especialidade: professional.especialidade ?? "",
-            dias_trabalho: professional.dias_trabalho ?? [1, 2, 3, 4, 5],
-            horario_inicio: professional.horario_inicio ?? "08:00",
-            horario_fim: professional.horario_fim ?? "18:00",
-            almoco_inicio: professional.almoco_inicio ?? "12:00",
-            almoco_fim: professional.almoco_fim ?? "13:00",
-          })
-        }))
-      }
-
-      await Promise.all(requests)
+      const dashboardData = await dashboardController.loadDashboard()
+      setUser(dashboardData.user)
+      setPets(dashboardData.pets)
+      setServices(dashboardData.services)
+      setProfessionals(dashboardData.professionals)
+      setCustomers(dashboardData.customers)
+      setSchedules(dashboardData.schedules)
+      setProfileForm(presentProfileForm(dashboardData.profile))
     } catch (requestError) {
-      const response = requestError as { response?: { status?: number } }
-      if (response.response?.status === 401) {
+      if (isUnauthorizedError(requestError)) {
         logout()
         return
       }
@@ -362,7 +271,7 @@ export function Dashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [logout])
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -373,7 +282,7 @@ export function Dashboard() {
     }, 0)
 
     return () => window.clearTimeout(timeout)
-  }, [])
+  }, [loadData])
 
   async function submit(action: () => Promise<void>, success: string) {
     try {
@@ -383,13 +292,7 @@ export function Dashboard() {
       setMessage(success)
       await loadData()
     } catch (requestError) {
-      const fallback = "Não foi possível concluir a operação"
-      if (typeof requestError === "object" && requestError && "response" in requestError) {
-        const response = requestError.response as { data?: { message?: string } }
-        setError(response.data?.message ?? fallback)
-      } else {
-        setError(fallback)
-      }
+      setError(presentRequestError(requestError))
     } finally {
       setSaving(false)
     }
@@ -482,11 +385,7 @@ export function Dashboard() {
     event.preventDefault()
     await submit(async () => {
       const payload = { ...petForm, idade: Number(petForm.idade), cliente: isAdmin ? petForm.cliente : undefined }
-      if (editingPetId) {
-        await api.put(`/pets/${editingPetId}`, payload)
-      } else {
-        await api.post("/pets", payload)
-      }
+      await dashboardController.savePet(payload, editingPetId)
       setPetForm(emptyPetForm())
       setEditingPetId(null)
       setPetEditModalOpen(false)
@@ -496,11 +395,7 @@ export function Dashboard() {
   async function handleScheduleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     await submit(async () => {
-      if (editingScheduleId) {
-        await api.put(`/agendamentos/${editingScheduleId}`, scheduleForm)
-      } else {
-        await api.post("/agendamentos", scheduleForm)
-      }
+      await dashboardController.saveSchedule(scheduleForm, editingScheduleId)
       setScheduleForm({ animal: "", servico: "", profissional: "", data_hora: "" })
       setEditingScheduleId(null)
       setScheduleModalOpen(false)
@@ -511,11 +406,7 @@ export function Dashboard() {
     event.preventDefault()
     await submit(async () => {
       const payload = { ...serviceForm, duracao_min: Number(serviceForm.duracao_min), preco: Number(serviceForm.preco) }
-      if (editingServiceId) {
-        await api.put(`/servicos/${editingServiceId}`, payload)
-      } else {
-        await api.post("/servicos", payload)
-      }
+      await dashboardController.saveService(payload, editingServiceId)
       setServiceForm(emptyServiceForm())
       setEditingServiceId(null)
       setServiceEditModalOpen(false)
@@ -526,11 +417,7 @@ export function Dashboard() {
     event.preventDefault()
     await submit(async () => {
       const payload = { ...professionalForm, senha: professionalForm.senha || undefined }
-      if (editingProfessionalId) {
-        await api.put(`/profissionais/${editingProfessionalId}`, payload)
-      } else {
-        await api.post("/profissionais", professionalForm)
-      }
+      await dashboardController.saveProfessional(payload, editingProfessionalId)
       setProfessionalForm(emptyProfessionalForm())
       setEditingProfessionalId(null)
       setProfessionalEditModalOpen(false)
@@ -541,11 +428,7 @@ export function Dashboard() {
     event.preventDefault()
     await submit(async () => {
       const payload = { ...clientForm, senha: clientForm.senha || undefined }
-      if (editingClientId) {
-        await api.put(`/clientes/${editingClientId}`, payload)
-      } else {
-        await api.post("/clientes", clientForm)
-      }
+      await dashboardController.saveCustomer(payload, editingClientId)
       setClientForm(emptyClientForm())
       setEditingClientId(null)
       setClientEditModalOpen(false)
@@ -555,39 +438,19 @@ export function Dashboard() {
   async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     await submit(async () => {
-      if (isProfessional) {
-        await api.put("/profissionais/me", {
-          name: profileForm.name,
-          email: profileForm.email,
-          telefone: profileForm.telefone,
-          foto: profileForm.foto,
-          especialidade: profileForm.especialidade,
-          dias_trabalho: profileForm.dias_trabalho,
-          horario_inicio: profileForm.horario_inicio,
-          horario_fim: profileForm.horario_fim,
-          almoco_inicio: profileForm.almoco_inicio,
-          almoco_fim: profileForm.almoco_fim,
-        })
-      } else {
-        await api.put("/clientes/me", {
-          name: profileForm.name,
-          email: profileForm.email,
-          telefone: profileForm.telefone,
-          foto: profileForm.foto,
-        })
-      }
+      await dashboardController.updateProfile(user?.role ?? "cliente", profileForm)
     }, "Perfil atualizado com sucesso")
   }
 
   async function removeResource(path: string, success: string) {
     await submit(async () => {
-      await api.delete(path)
+      await dashboardController.removeResource(path)
     }, success)
   }
 
   async function cancelSchedule(id: string) {
     await submit(async () => {
-      await api.patch(`/agendamentos/${id}/cancel`)
+      await dashboardController.cancelSchedule(id)
     }, "Agendamento cancelado")
   }
 
