@@ -1,9 +1,10 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import api from "../../services/api"
 import { SiteHeader, SiteShell } from "../../components/layout/UnifiedPageFrame"
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from "../../hooks/useAuth"
+import { authController } from "../../interface-adapters/controllers/authController"
+import { presentRequestError } from "../../interface-adapters/presenters/errorPresenter"
 
 type Mode = "login" | "register"
 
@@ -19,7 +20,7 @@ export function LoginPage({ mode = "login" }: LoginPageProps) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
-  const { signIn } = useAuth();
+  const { signIn } = useAuth()
 
   const titleByMode = {
     login: "Entrar na conta",
@@ -44,22 +45,15 @@ export function LoginPage({ mode = "login" }: LoginPageProps) {
 
     try {
       if (mode === "register") {
-        const { data } = await api.post("/auth/register", { name, email, password })
-        localStorage.setItem("petshop-token", data.token)
+        await authController.registerCustomer({ name, email, password })
         navigate("/app/dashboard")
         return
       }
 
-      await signIn({ email, password });
+      await signIn({ email, password })
       navigate("/app/dashboard")
     } catch (requestError) {
-      const fallback = "Não foi possível concluir a operação"
-      if (typeof requestError === "object" && requestError && "response" in requestError) {
-        const response = requestError.response as { data?: { message?: string } }
-        setError(response.data?.message ?? fallback)
-      } else {
-        setError(fallback)
-      }
+      setError(presentRequestError(requestError))
     } finally {
       setLoading(false)
     }

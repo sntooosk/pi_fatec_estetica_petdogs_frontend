@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import api from "../../services/api"
+import { availabilityController } from "../../interface-adapters/controllers/availabilityController"
 
 interface ProfessionalOption {
   _id: string
@@ -105,25 +105,28 @@ export function AvailabilityCalendar({ professionals, services, value, onChange,
 
   useEffect(() => {
     if (!value.profissional || !value.servico) {
-      setMonthDays([])
-      setSlots([])
-      setCalendarMessage("Escolha um serviço e um profissional para carregar a agenda")
-      return
+      const timeout = window.setTimeout(() => {
+        setMonthDays([])
+        setSlots([])
+        setCalendarMessage("Escolha um serviço e um profissional para carregar a agenda")
+      }, 0)
+
+      return () => window.clearTimeout(timeout)
     }
 
     let active = true
-    setLoadingMonth(true)
-
-    api.get<{ month: string; days: DayAvailability[] }>("/agendamentos/disponibilidade/mes", {
-      params: {
-        profissionalId: value.profissional,
-        servicoId: value.servico,
-        month: toMonthKey(monthAnchor),
-      },
+    void Promise.resolve().then(() => {
+      if (active) setLoadingMonth(true)
     })
-      .then((response) => {
+
+    availabilityController.getMonthAvailability({
+      profissionalId: value.profissional,
+      servicoId: value.servico,
+      month: toMonthKey(monthAnchor),
+    })
+      .then((days) => {
         if (!active) return
-        setMonthDays(response.data.days)
+        setMonthDays(days)
         setCalendarMessage("Clique em um dia para ver os horários livres")
       })
       .catch(() => {
@@ -143,24 +146,25 @@ export function AvailabilityCalendar({ professionals, services, value, onChange,
 
   useEffect(() => {
     if (!value.profissional || !value.servico || !selectedDate) {
-      setSlots([])
-      return
+      const timeout = window.setTimeout(() => setSlots([]), 0)
+
+      return () => window.clearTimeout(timeout)
     }
 
     let active = true
-    setLoadingDay(true)
+    void Promise.resolve().then(() => {
+      if (active) setLoadingDay(true)
+    })
 
-    api.get<{ slots: SlotAvailability[]; available: boolean }>("/agendamentos/disponibilidade", {
-      params: {
-        profissionalId: value.profissional,
-        servicoId: value.servico,
-        date: selectedDate,
-      },
+    availabilityController.getDayAvailability({
+      profissionalId: value.profissional,
+      servicoId: value.servico,
+      date: selectedDate,
     })
       .then((response) => {
         if (!active) return
-        setSlots(response.data.slots)
-        setCalendarMessage(response.data.available ? "Escolha um horário disponível" : "Nenhum horário disponível para este dia")
+        setSlots(response.slots)
+        setCalendarMessage(response.available ? "Escolha um horário disponível" : "Nenhum horário disponível para este dia")
       })
       .catch(() => {
         if (!active) return
